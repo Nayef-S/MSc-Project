@@ -1,3 +1,4 @@
+%original MATLAB code
 rng('shuffle')
 
 % numerical parameters
