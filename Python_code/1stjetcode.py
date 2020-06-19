@@ -10,7 +10,7 @@ import matplotlib.animation as animation
 from matplotlib.colors import LogNorm
 # import pyfftw
 #numerical parameters
-steps = 10000
+steps = 100000
 Nx = 64
 Ny = 128
 dt = 1e-3
@@ -120,7 +120,6 @@ for step in tqdm(range(0,steps)):
         a = max(U[1:6])
         b = np.argmax(U[1:6])
         highestmode = b
-        frac = step/steps
         print('\n Step = {} , dominating mode = {} '.format(step,highestmode))
 
     u = 1j *(ky/k2)*np.fft.fft2(w)
@@ -132,24 +131,19 @@ for step in tqdm(range(0,steps)):
     E_c.append(E_u)
     E.append(E_now)
     
-    """ plots """
-    
-    # omega
-    ws = ax3.contourf(xx,yy,w)
-    
-    # U and dU/dy^2
-    ax4.plot(yy,np.real(np.fft.ifft(U)),yy , np.real(np.fft.ifft(-kky**2 * U)))
-    
     # hovmoller stream
     psi = U/(1j *kky)
     psi[0] = 0
     hovmoller = np.c_[hovmoller,np.real(np.fft.ifft(psi))]
-    
 
     # modes
     Umodes_ = abs(U[1:6])
     Umodes = np.c_[Umodes,Umodes_]
     
+    
+""" plots """
+
+
 #Energy
 ax1.plot(E,label = 'E')
 ax1.plot(E_c,label = 'E_{U}')
@@ -164,10 +158,13 @@ ax2.set_xlabel('y')
 ax2.set_ylabel('mean(uv)')
 
 # omega
+
+ws = ax3.contourf(xx,yy,w)
 ax3.set_xlabel('y')
 ax3.set_ylabel('y')
 
- # U and dU/dy^2
+# U and dU/dy^2
+ax4.plot(yy,np.real(np.fft.ifft(U)),yy , np.real(np.fft.ifft(-kky**2 * U)))
 ax4.set_xlabel('y')
 ax4.set_ylabel("U and U''")
 
