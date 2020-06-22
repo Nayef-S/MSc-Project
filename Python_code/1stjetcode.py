@@ -10,7 +10,7 @@ import matplotlib.animation as animation
 from matplotlib.colors import LogNorm
 # import pyfftw
 #numerical parameters
-steps = 100000
+steps = int(5e6)
 Nx = 64
 Ny = 128
 dt = 1e-3
@@ -76,8 +76,8 @@ v[0,0] = 0
 E_c = []
 E = []
 ims = []
-hovmoller = np.empty(128)
-Umodes = np.empty(5)
+hovmoller = np.empty((128,steps))
+Umodes = np.empty((5,steps))
 
 fig, ((ax1, ax2, ax3), (ax4, ax5, ax6)) = plt.subplots(nrows=2, ncols = 3)
 fig = plt.gcf()
@@ -134,11 +134,11 @@ for step in tqdm(range(0,steps)):
     # hovmoller stream
     psi = U/(1j *kky)
     psi[0] = 0
-    hovmoller = np.c_[hovmoller,np.real(np.fft.ifft(psi))]
+    hovmoller[:,step] = np.real(np.fft.ifft(psi))
 
     # modes
     Umodes_ = abs(U[1:6])
-    Umodes = np.c_[Umodes,Umodes_]
+    Umodes[:,step] = Umodes_
     
     
 """ plots """
@@ -168,7 +168,7 @@ ax4.plot(yy,np.real(np.fft.ifft(U)),yy , np.real(np.fft.ifft(-kky**2 * U)))
 ax4.set_xlabel('y')
 ax4.set_ylabel("U and U''")
 
-cs = ax5.imshow(hovmoller, aspect = 50)
+cs = ax5.imshow(hovmoller, aspect = steps/200)
 
 # modes
 ax6.plot(Umodes.T)
@@ -180,6 +180,13 @@ fig.colorbar(ws,ax=ax3)
 fig.colorbar(cs,ax=ax5)
 
 plt.savefig("soln.png", dpi=150)
+
+""" saving data """
+
+# np.save('Hovmoller.npy', hovmoller) 
+# np.save('Umodes.npy', Umodes) 
+# np.save('U.npy', U) 
+# np.save('w.npy', w) 
 
 # ani = animation.ArtistAnimation(fig, ims, interval=10, blit=True)
 
