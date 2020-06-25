@@ -1,0 +1,104 @@
+\documentclass[11pt]{amsart}
+\usepackage{enumitem}
+\usepackage{graphicx}
+\usepackage[latin1]{inputenc}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{MnSymbol}
+\usepackage{hyperref}
+\usepackage{doi}
+\usepackage[numbers,sort&compress]{natbib}
+
+\newcommand{\trace}{\mathrm{Tr}}
+
+\pagestyle{plain}
+
+\setlength{\textwidth}{15cm}
+\setlength{\textheight}{24cm}
+\setlength{\parindent}{0ex}
+\setlength{\parskip}{1ex}
+
+\setlength{\topmargin}{-5mm}
+\setlength{\headheight}{0mm}
+\setlength{\headsep}{0mm}
+
+\setlength{\oddsidemargin}{1cm}
+\setlength{\evensidemargin}{1cm}
+
+\def\EE{\mathbb{E}}\def\PP{\mathbb{P}}
+\def\RR{\mathbb{R}}
+
+\begin{document}
+
+\title{Energy Balance for QG-QL}
+\date{\today}
+\author{Tobias Grafke}
+
+\begin{abstract}
+  Energy Balance for the quasi-linear quasi-geostrophic equations, in
+  particular to verify smallness assumptions for viscosity, and the
+  scale separation between fluctuations and mean flow.
+\end{abstract}
+
+\maketitle
+
+For the QG-QL system in properly rescaled variables is given by
+\begin{subequations}
+  \begin{align}
+    \frac{\partial U}{\partial t} &= R_U - U + \frac{\nu}{\alpha} \Delta U\\
+    d\omega &= -\frac1\alpha\left(U\partial_x \omega + (\partial_x \Delta^{-1}\omega)(\beta-U'') +\alpha \omega - \nu\Delta\omega\right)\,dt + \sqrt{\frac2\alpha}\sigma\,dW\,,
+  \end{align}
+\end{subequations}
+where $R_U$ is the Reynolds stress,
+\begin{equation}
+  R_U = \frac1L\int v(x,y)\omega(x,y)\,dx
+\end{equation}
+for the domain $D=[0,L]^2$. Defining $C(x,y,x',y') =
+\omega(x,y)\omega(x',y')$ we can obtain the Reynolds stress via
+\begin{equation}
+  R_U(y) = \int\left(\partial_x \Delta_y^{-1} C(x,y,x',y')\right)_{(x,y)=(x',y')}\,dx\,.
+\end{equation}
+The forcing normalization $\sigma$ is chosen such that $\EE[(\sigma
+  dW_1)(-\Delta^{-1}\sigma dW_2)] = 1$.
+
+Let $E_U$ be the energy in the zonal structures,
+\begin{equation}
+  E_U = \frac L2 \int \EE [U^2]\,dy\,.
+\end{equation}
+Then we obtain
+\begin{equation}
+  \frac{dE_U}{dt} = L\int \EE [UR_U]\,dy - 2E_U - \frac{L\nu}{\alpha} \int\EE[(\partial_y U)^2]\,dy
+\end{equation}
+and therefore
+\begin{equation}
+  E_U = \frac L2 \int \EE [UR_U]\,dy - \frac{L\nu}{2\alpha} \int\EE[(\partial_y U)^2]\,dy\,.
+\end{equation}
+
+Similarly, let $E_\omega$ be the energy of the turbulent fluctuations,
+\begin{equation}
+  E_\omega = \frac\alpha2\int \EE|\vec{v}|^2(x,y)\,dxdy = -\frac\alpha2\int\EE\left(\Delta_y^{-1} C(x,y,x',y')\right)_{(x,y)=(x',y')}\,dx\,dy\,.
+\end{equation}
+Then we obtain
+\begin{align*}
+  \frac{dE_\omega}{dt} &= -2E_\omega -\nu\int\EE[\omega^2]\,dx\,dy+\EE\underbrace{\int(U''-\beta)(\partial_x\Delta^{-1}\omega)(\Delta^{-1}\omega)\,dx\,dy}_{=0 \textrm{ (total deriv $\partial_x$)}}-\int\EE[U\omega (\partial_x\Delta^{-1}\omega)]\,dx\,dy+2\\
+  &= -E_\omega -\frac\nu2\int\EE[C_{(x,y)=(x',y')}]\,dx\,dy-\tfrac12 \int\EE[U R_U]\,dx\,dy+1
+\end{align*}
+and therefore
+\begin{equation}
+  E_\omega= -\frac\nu2\int\EE[C_{(x,y)=(x',y')}]\,dx\,dy-\tfrac12 \int\EE[U R_U]\,dx\,dy+1
+\end{equation}
+
+Therefore, in total, for $E=E_U + E_\omega$,
+\begin{equation}
+  \frac{dE}{dt} = -E -\frac\nu2\int\EE[\omega^2]\,dx\,dy - \frac{L\nu}{2\alpha} \int\EE[(\partial_y U)^2]\,dy + 1
+\end{equation}
+so that in the stationary case we have
+\begin{equation}
+  E = 1 - \frac\nu2 \left(\int\EE[C]\,dx\,dy - \frac{L}{\alpha} \int\EE[(\partial_y U)^2]\,dy\right)
+\end{equation}
+
+
+\bibliographystyle{unsrtnat} 
+\bibliography{bib}
+
+\end{document}
