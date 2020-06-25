@@ -166,9 +166,13 @@ vice-versa.
 We can now go ahead and try to evaluate the different terms of
 $\Gamma_k$ as operator in this sense. Note that we want the
 representation of $\Gamma$ in Real-space in $y$, because this is the
-proper representation for Matlab's \texttt{lyap} (which uses
-matrix-product convention~(\ref{eq:matrix-vector}), of course,
-and not convolution, when interpreting the Lyapunov equation).
+proper representation for Matlab's \texttt{lyap}, which uses
+matrix-product convention~(\ref{eq:matrix-vector}), of course, and not
+convolution, when interpreting the Lyapunov equation. Maybe instead
+one could work out a much simpler $\Gamma(k_y, k_{y'})$ and solve the
+Lyapunov equation completely in Fourier-space, and work out the
+Reynolds stress from the resulting $C(k_y, k_{y'})$ eventually, but it
+is not obvious to me how this works, so I will not choose this route.
 
 \subsubsection{Scalar multiplication}
 
