@@ -1,0 +1,54 @@
+\documentclass[12pt]{amsart}
+\usepackage[centertags]{amsmath}
+\usepackage{amsfonts,amssymb}
+\usepackage{enumerate}
+\usepackage[sort&compress,numbers]{natbib}
+\usepackage{hyperref}
+\usepackage{doi}
+\usepackage{bbold}
+\usepackage[latin1]{inputenc}
+
+\usepackage{amsfonts,amsmath,amssymb,graphicx,color,amsthm}
+\usepackage{tgtermes}
+
+\textheight 8.5in
+\textwidth 15cm
+\oddsidemargin 0.75cm
+
+\DeclareMathOperator{\sgn}{sgn}
+
+\def\EE{\mathbb{E}}\def\PP{\mathbb{P}}
+
+\begin{document}
+\section{2D baratropic eqns on $\beta$-plane}
+
+\section{Energy balance check}
+
+Computing $\Gamma(U)$:
+
+\begin{equation*}
+  \Gamma(U) = U\partial_x +(\partial_y^2 U-\beta)\partial_x \Delta^{-1} + \alpha + \nu(-\Delta)^p\,.
+\end{equation*}
+
+Taking FT in x and y and computing for each mode $k_{x}$
+\begin{equation*}
+  \Gamma(\mathbf{U})_{k_{x}} = \mathcal F^{-1}[ik_{x}\mathbf{U}] + \mathcal F^{-1}[ik_{x}(\beta\mathbb{1} + \mathbf{U}'') (\mathbf{k}_{y}^{2}  +k_{x}^{2} \mathbb{1}) ^{-1}] + \alpha \mathbb{1} + \mathcal F^{-1}[\nu(\mathbf{k}_{y}^{2} + k_{x}^{2}\mathbb{1})^p]\,,
+\end{equation*}
+
+where $\mathbf{U}$ and $\mathbf{k}_{y}^{2}$ are diagonal matrices of size $ N_{y} \times N_{y}$ with $U(y,t)$ and $k_{y}^2$ on the diagonals respectively. Then the full $\Gamma$:
+
+\begin{equation*}
+  \Gamma(U) = \sum_{k_{x}} \Gamma(\mathbf{U})_{k_{x}} .
+\end{equation*}
+
+We can then compute $C_{U}$ by solving the lyapunov eqn:
+\begin{equation*}
+  \Gamma(U) C_{U} + C_{U} \Gamma(U)^\dagger = 2
+  \sigma \sigma^\dagger\,
+\end{equation*}
+
+
+
+
+\end{document}
+
