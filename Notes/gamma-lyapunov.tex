@@ -1,0 +1,260 @@
+\documentclass[11pt,reqno,a4paper]{amsart}
+\usepackage{enumerate}
+\usepackage{graphicx}
+\usepackage[latin1]{inputenc}
+\usepackage{amsmath,amssymb,MnSymbol,dsfont}
+\usepackage{hyperref}
+\usepackage{doi}
+\usepackage[numbers,sort&compress]{natbib}
+\usepackage{multicol}
+\usepackage{tgtermes}
+\usepackage{mathtools}
+%\usepackage{amsthm}
+
+\setlength{\textwidth}{17cm}
+\setlength{\textheight}{23cm}
+\setlength{\parindent}{0ex}
+\setlength{\parskip}{1ex}
+
+\setlength{\topmargin}{0mm}
+\setlength{\headheight}{0mm}
+\setlength{\headsep}{5mm}
+
+\setlength{\marginparwidth}{0mm}
+\setlength{\marginparpush}{0mm}
+\setlength{\marginparsep}{0mm}
+\setlength{\oddsidemargin}{0mm}
+\setlength{\evensidemargin}{0mm}
+
+%% only subsections
+\makeatletter
+\renewcommand\thesection{}
+\renewcommand\thesubsection{\@arabic\c@subsection}
+\makeatother
+
+\newcommand{\eps}{\varepsilon}
+\newcommand{\EE}{\mathbb{E}}
+\newcommand{\RR}{\mathds{R}}
+\newcommand{\NN}{\mathds{N}}
+\newcommand{\tr}{\mathrm{tr}}
+
+\newcommand{\argsup}{\operatornamewithlimits{argsup}}
+\newcommand{\argmin}{\operatornamewithlimits{argmin}}
+
+\newtheorem*{theorem}{Theorem}
+\newtheorem{corollary}{Corollary}
+\newtheorem{lemma}{Lemma}
+\theoremstyle{definition}
+\newtheorem*{remark}{Remark}
+
+\begin{document}
+
+\title{Operator $\Gamma$ for the quasi-linear approximation of QG}
+\let\thefootnote\relax\footnotetext{Tobias Grafke, \textit{Date:}
+  \today} % date only
+
+\begin{abstract}
+  Work out in a bit more detail the form of the linear operator in the
+  quasi-linear approximation of the quasi-geostrophic equations in the
+  $\beta$-plane.
+\end{abstract}
+
+\maketitle
+\subsection{Setup}
+
+Following \cite{bouchet-nardini-tangarife:2013}, the system of
+equations we start with is
+\begin{equation}
+  \label{eq:QG-QL}
+  \begin{cases}
+    \partial_t U = \overline{v\omega}- U -\nu(-\partial_y^2)^p U\\
+    d \omega = -\frac{1}{\alpha}\Gamma(U)\omega\,dt  + \sqrt{\frac{2}{\alpha}} \sigma dW
+  \end{cases}
+\end{equation}
+where the second line is a stochastic PDE and an Ornstein-Uhlenbeck
+process with drift 
+\begin{equation}
+  \label{eq:Gamma}
+  \Gamma(U) = U\partial_x +(\partial_y^2 U-\beta)\partial_x \Delta^{-1} + \alpha + \nu(-\Delta)^p\,.
+\end{equation}
+We want to understand in detail what is happening with this equation
+by drawing a parallel to a (finite-dimensional) Ornstein-Uhlenbeck
+process. Consider, for $X\in\RR$,
+\begin{equation}
+  \label{eq:OU}
+  dX = -\gamma X\,dt + \sigma\,dW\,,
+\end{equation}
+where $\gamma>0, \sigma>0$. Then, for long times, the variance of the
+process (evaluated at the same times $t$), $\EE X^2 =
+\sigma^2/(2\gamma)$, which can be derived for example by solving the
+corresponding Fokker-Planck equation.
+
+In higher dimensions, with $X\in\RR^n, \gamma\in\RR^{n\times n}$, and
+$\sigma\in\RR^{n\times n}$, we must have that $\gamma$ is positive
+definite, i.e.~$\forall\ x\ne0\in\RR^n, \langle x, \gamma x\rangle >
+0$, or equivalently that all eigenvalues of $\gamma$ have positive
+real part. Otherwise, the corresponding eigenmodes would be directions
+into which the process would be unstable and therefore be driven
+towards infinity. The variance of the process is then given by $\EE
+X_i X_j = C_{ij}$, where the covariance matrix $C$ solves the
+\emph{Lyapunov equation}
+\begin{equation}
+  \label{eq:Lyapunov}
+  \gamma C + C \gamma^\dagger = 2 \chi\,,
+\end{equation}
+with $\chi = \sigma \sigma^\dagger$, and ${}^\dagger$ denotes the adjoint.
+
+\subsection{Infinite-dimensional case}
+
+Note that in the Ornstein-Uhlenbeck finite dimensional
+case~(\ref{eq:OU}), the matrix-vector product is
+\begin{equation}
+  \label{eq:matrix-vector}
+  \gamma X = \sum_i \gamma_{ij} X_j\,,
+\end{equation}
+where $\gamma$ depends on two indices $i$ and $j$. In the infinite
+dimensional generalization of~(\ref{eq:QG-QL}), we replace indices by
+coordinates, and sums with integrals. We have two spatial coordinates,
+so our inner product becomes a double integral. We interpret
+\begin{equation}
+  \Gamma_U \omega = \iint \Gamma_U(x,y,x',y') \omega(x',y') dx' dy'
+\end{equation}
+and in the Lyapunov equation~(\ref{eq:Lyapunov}), the covariance
+'matrix' becomes an object that depends on four coordinates,
+$C(x,y,x',y')$. Of course, numerically, real space will be discretized
+as well, and integrals become sums eventually, but we will deal with
+that separately to not confuse the notation further.
+
+We first note, for our specific $\Gamma_U$ in
+equation~(\ref{eq:QG-QL}), the equation \emph{separates} in $k_x$. By
+this we mean concretely: In a given Fourier-discretization in
+$x$-direction, define a vector $(k_x)_i, i\in\{1,\dots,N_x\}$ that
+defines the $i$-th discrete Fourier component, or $i$-th
+\emph{mode}. The evolution equation for $\omega_{k_i}$ then depends
+only on a right-hand-side with terms depending on the same mode $k_i$,
+but no other modes $k_j, j\ne i$. Note that the same is not true in
+$y$: For example, product terms like $U(y) \omega(x,y)$ become
+convolutions in Fourier-space and therefore mix modes. But for $x$, we
+can pass into Fourier-space and consider every mode $k_x$
+separately. The evolution equation becomes
+\begin{equation}
+  d\omega_{k_x}(y) = \int \Gamma_{k_x}(y,y') \omega_{k_x}(y)\,dy'\ dt + \sqrt{\tfrac2\alpha}\sigma_{k_x} \,dW_{k_x}\,,
+\end{equation}
+(where the $U$ dependence of $\Gamma$ is supressed for
+readability). Our problem is to find a proper representation of the
+operator $\Gamma_k(y,y')$.
+
+For this, note a few connections. First, we have, for a function
+$f(x)$ and its Fourier coefficients $f_k$, that
+\begin{equation}
+  f(x) = \sum_k f_k e^{ikx} = \mathcal F[f_k](x)\,,\qquad f_k = \int f(x) e^{-ikx}\,dx = \mathcal F^{-1}[f(x)]_k
+\end{equation}
+where we define forward and backward Fourier transform operators as
+$\mathcal F$ and $\mathcal F^{-1}$ and we are not too specific about
+factors $2\pi$, domain size $L$, the precise values of the numerical
+prefactors, the integral bounds and the summation bounds, and the
+exact form needs to be worked out later.
+
+Further, note that
+\begin{equation}
+  \label{eq:convolutions}
+  \mathcal F^{-1} [f_k g_k](x) = \int f(z) g(x-z)\,dz\quad\text{and}\quad \mathcal F[f(x) g(x)]_k = \sum_{p,q} f_p g_{k-p}
+\end{equation}
+i.e.~products in Fourier-space become convolutions in Real-space, and
+vice-versa.
+
+We can now go ahead and try to evaluate the different terms of
+$\Gamma_k$ as operator in this sense. Note that we want the
+representation of $\Gamma$ in Real-space in $y$, because this is the
+proper representation for Matlab's \texttt{lyap} (which uses
+matrix-product convention~(\ref{eq:matrix-vector}), of course,
+and not convolution, when interpreting the Lyapunov equation).
+
+\subsubsection{Scalar multiplication}
+
+Consider $\partial_t \omega = \gamma \omega$, for $\gamma \in
+\RR$. Then of course
+\begin{equation}
+  \Gamma(y,y') = \gamma \delta(y-y')\,,
+\end{equation}
+because
+\begin{equation}
+  \int \Gamma(y,y') \omega(y')\,dy' = \gamma \int \delta(y-y')
+  \omega(y')\,dy' = \gamma \omega(y)\,.
+\end{equation}
+In other words, scalars appear on the diagonal. The usage of the
+$\delta$-function is a bit ugly, and maybe it should be written
+discretely (since that is what we want in the end anyway). Note in
+particular that $i k_x$ is a scalar in this sense, when computing
+$x$-derivatives.
+
+\subsubsection{Multiplication with function of $y$}
+
+Consider we have $\partial_t \omega(y) = U(y) \omega(y)$. Then, with
+the same argument as before,
+\begin{equation}
+  \Gamma(y,y') = U(y) \delta(y-y')\,.
+\end{equation}
+Thus, functions of $y$ appear on the diagonal, but the diagonal is
+different for every entry.
+
+\subsubsection{$y$-Derivatives}
+
+A more complicated case is the derivative in $y$. Imagine $\partial_t
+\omega = \partial_y \omega(y)$. We could use finite differences to
+implement the derivative (i.e. central finite differences) and then
+the implementation of $\Gamma$ as a matrix is straightforward. Maybe
+we could implement this as a benchmark case. I'd generally prefer to
+compute derivatives in Fourier-space, due to superior accuracy. For
+this, define $D(y) = \mathcal F^{-1}[-ik_y](y)$ the inverse Fourier
+transform of the derivative operator in Fourier space. Then we can use
+the convolution connection~(\ref{eq:convolutions}, left) with $g_k =
+-ik$ and $f_k = \omega_k$ to write
+\begin{equation}
+  \partial_y \omega(y) = \mathcal F^{-1}\left[\mathcal F[\partial_y \omega(y)]_{k_y}\right](y) = \mathcal F^{-1}\left[ -ik_y \omega_{k_y}\right](y) = \int \mathcal F^{-1}[-ik_y](y-y') \omega(y')\,dy' = \int D(y-y') \omega(y')\,dy'\,.
+\end{equation}
+We can therefore read off that
+\begin{equation}
+  \Gamma(y,y') = D(y-y') = \mathcal F^{-1}[-ik_y](y-y')\,.
+\end{equation}
+This $\Gamma$ is likely a full matrix. It must be the matrix that, if
+multiplied by a vector of $y$ from the right, should yield its first
+derivative. This test can be used in order to consider whether the
+constants are chosen correctly, by taking a (discretized) function as
+input for which the derivative is known analytically.
+
+The other derivative operations that are actually needed can probably
+be defined in the same way, i.e.~by using the inverse
+Fourier-transform of the appropriate operator in Fourier-space (for
+example $\beta (ik_x)/(k_x^2 + k_y^2)$). Similar to above, these parts
+of the operator can be numerically tested by considering test cases
+with analytical solutions.
+
+\subsection{Usage}
+
+Obviously, sums of terms lead to sums in $\Gamma$, so the above is
+likely enough to build up all of $\Gamma$ from~(\ref{eq:Gamma}). This
+can then be used in conjunction with Matlab's \texttt{lyap} to solve
+the Lyapunov equation~(\ref{eq:Lyapunov}), and then solve the QG-QL
+equation~(\ref{eq:QG-QL}) for infinite time separation.
+
+Using this to compute the correlation
+$\EE\left[\omega(y_1)\omega(y_2)\right]$ (equivalently, second
+cumulant) instead of $\omega$ in equation~\eqref{eq:QG-QL}, I believe
+we recover CE2 \cite{marston-conover-schneider:2008} or equivalently
+S3T by \cite{farrell-ioannou:2003, farrell-ioannou:2007}. This also
+opens the possibility to analyze emergence and stability of the jets
+in some detail via linear stability analysis in the context of
+atmosphere dynamics \cite{bakas-ioannou:2011, bakas-ioannou:2013} and
+in the context of plasma physics \cite{parker-krommes:2013,
+  parker-krommes:2014}.
+
+\begin{multicols}{2}
+  \footnotesize
+  \setlength{\bibsep}{0.0pt}
+  
+  \bibliographystyle{apsrev4-1}
+  \bibliography{bib}
+\end{multicols}
+
+\end{document}
