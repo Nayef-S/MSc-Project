@@ -7,7 +7,7 @@ from tqdm import tqdm
 from numpy.matlib import repmat
 import matplotlib.pylab as plt
 import matplotlib.animation as animation
-from matplotlib.colors import LogNorm
+from scipy import linalg
 # import pyfftw
 #numerical parameters
 steps = int(5e6)
@@ -15,8 +15,7 @@ Nx = 64
 Ny = 128
 dt = 1e-3
 E = []
-Ec = []
-Umodes = []
+E_c = []
 betas = []
 
 #model parameters
@@ -43,11 +42,11 @@ kky2 = np.arange(-Ny/2+1,0)
 kky = np.concatenate((kky1, kky2), axis=None)*dky
 kx,ky = np.meshgrid(kkx,kky,indexing = 'xy')
 k2 = kx**2 + ky**2
-kp = k2**2
+kp = k2**p
 modk = np.sqrt(k2)
 kmax = np.amax(modk)
 
-U = 0.2*np.fft.fft(np.sin(2*yy/delta))
+U = 0.2*np.fft.fft(np.sin(2*yy/delta)) 
 w = np.zeros((Ny,Nx))
 
 M1 = np.exp((-nu*kp - alp)*dt)
@@ -73,11 +72,10 @@ sigma = np.sqrt(C)
 v =  -1j*(kx/k2)*np.fft.fft2(w) 
 v[0,0] = 0
 
-E_c = []
-E = []
 ims = []
 hovmoller = np.empty((128,steps))
 Umodes = np.empty((5,steps))
+counter = 0
 
 fig, ((ax1, ax2, ax3), (ax4, ax5, ax6)) = plt.subplots(nrows=2, ncols = 3)
 fig = plt.gcf()
@@ -95,7 +93,7 @@ for step in tqdm(range(0,steps)):
     
     w = np.real(np.fft.ifft2(M1*np.fft.fft2(w) + M2*np.fft.fft2(wrest)))
     
-    eta = np.random.default_rng().normal(0, 1, size=(Ny, Nx)) + 1j*np.random.default_rng().normal(0, 1, size=(Ny, Nx)) * sigma/np.sqrt(2) # why divide? 
+    eta = np.random.default_rng().normal(0, 1, size=(Ny, Nx)) + 1j*np.random.default_rng().normal(0, 1, size=(Ny, Nx)) * sigma/np.sqrt(2)
     
     w += np.sqrt(dt) * np.real(np.fft.ifft2(eta))
     
@@ -137,8 +135,8 @@ for step in tqdm(range(0,steps)):
     hovmoller[:,step] = np.real(np.fft.ifft(psi))
 
     # modes
-    Umodes_ = abs(U[1:6])
-    Umodes[:,step] = Umodes_
+    Umodes[:,step] = abs(U[1:6])
+    
     
     
 """ plots """
@@ -183,15 +181,16 @@ plt.savefig("soln.png", dpi=150)
 
 """ saving data """
 
-# np.save('Hovmoller.npy', hovmoller) 
-# np.save('Umodes.npy', Umodes) 
-# np.save('U.npy', U) 
-# np.save('w.npy', w) 
+np.save('Hovmoller.npy', hovmoller) 
+np.save('Umodes.npy', Umodes) 
+np.save('U.npy', np.real(np.fft.ifft(U))) 
+np.save('Upp.npy', np.real(np.fft.ifft(-kky**2 * U)))
+np.save('w.npy', w) 
+np.save('sigma.npy', sigma) 
 
 # ani = animation.ArtistAnimation(fig, ims, interval=10, blit=True)
 
 # ani.save('hovmoll.gif', writer='imagemagick')
-
 
 
 

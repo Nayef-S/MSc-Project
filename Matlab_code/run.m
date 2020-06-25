@@ -2,7 +2,7 @@
 rng('shuffle')
 
 % numerical parameters
-steps=5e6;
+steps=1000;
 Nx = 64;
 Ny = 128;
 dt = 1e-3;
@@ -15,7 +15,7 @@ betas=[];
 L = 2*pi;
 alp = 0.01;
 nu = 1e-6;
-beta = 4.5;
+beta = 4.5; 
 p = 2; % hyperviscosity exponent
 delta = 1.0;
 
