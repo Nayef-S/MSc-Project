@@ -1,10 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-Created on Thu Jun 25 23:46:21 2020
 
-@author: esuwws
-"""
 
 """ E check"""
 
