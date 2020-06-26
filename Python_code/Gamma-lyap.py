@@ -55,13 +55,13 @@ for k in tqdm(range(1,Nx+1)):
     
     D = np.fft.ifft2(nu * (np.diag(kky**2) + np.identity(128)*(k**2))**p)
     
-    Gamma_k = A + B + C + D
+    Gamma_k = A + B + C + D 
     
     Ck += linalg.solve_continuous_lyapunov(Gamma_k, Chi)
 
+C2 = [Ck[i][i] for i in range(min(len(Ck[0]),len(Ck)))] # diagonal of C
 
-
-E_t0 = 1 - (nu/2)*((np.mean(np.real(Ck))*L**2 *delta) - (L/alp)*(np.mean(np.real((kky*np.fft.ifft(U)))**2) * delta))
+E_t0 = 1 - (nu/2)*((np.mean(np.real(C2))*L**2 *delta) - (L/alp)*(np.mean(np.real((kky*np.fft.ifft(U)))**2) * delta)) #stationary energy
 
 
 
