@@ -10,7 +10,7 @@ import matplotlib.animation as animation
 from scipy import linalg
 # import pyfftw
 #numerical parameters
-steps = 5000
+steps = int(5e6)
 Nx = 64
 Ny = 128
 dt = 1e-3
@@ -187,7 +187,6 @@ np.save('U.npy', np.real(np.fft.ifft(U)))
 np.save('Upp.npy', np.real(np.fft.ifft(-kky**2 * U)))
 np.save('w.npy', w) 
 np.save('sigma.npy', sigma) 
-np.save('E.npy', E) 
 
 # ani = animation.ArtistAnimation(fig, ims, interval=10, blit=True)
 
