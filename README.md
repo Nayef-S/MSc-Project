@@ -1,2 +1,2 @@
 # MSc-Project
-Code for the Msc project in Python and MATLAB
+Data, Literature and Code for the Msc project in Python and MATLAB
