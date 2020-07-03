@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 
+""" E check"""
 
 import math
 import numpy as np
@@ -41,7 +42,7 @@ Ck = np.zeros((128,128),dtype=np.complex)
 U_hat = np.fft.fft(U)
 
 
-def Gamma_lyap(sigma,U_hat,kx):
+def Gamma_kyap(sigma,U_hat,kx):
     
     sigma_real = np.real(np.fft.ifft(sigma[:,kx]))
     
@@ -67,24 +68,23 @@ def Gamma_lyap(sigma,U_hat,kx):
     
     return Ck
 
-if __name__ == "__main__":
+C_xpyp = []
 
-    C_xpyp = []
+"""Computing stationary energy"""
+
+for kx in tqdm(range(0,Nx)):
     
-    """Computing stationary energy"""
+    Ck = Gamma_kyap(sigma,U_hat,kx)
+
+    diagC = [Ck[i][i] for i in range(min(len(Ck[0]),len(Ck)))] # diagonal of C
     
-    for kx in tqdm(range(0,Nx)):
-        
-        Ck = Gamma_lyap(sigma,U_hat,kx)
-    
-        diagC = [Ck[i][i] for i in range(min(len(Ck[0]),len(Ck)))] # diagonal of C
-        
-        C_xpyp.append(diagC)
-    
-    E_st = 1 - (nu*0.5)*((np.mean(np.real(C_xpyp))*(L**2) *delta) + (L/alp)*(np.mean(np.real(np.fft.ifft(1j*kky*U_hat))**2) * delta)) #stationary energy
-    
-    test = Gamma_lyap(sigma,U_hat,1)
-    
+    C_xpyp.append(diagC)
+
+E_st = 1 - (nu*0.5)*((np.mean(np.real(C_xpyp))*(L**2) *delta) + (L/alp)*(np.mean(np.real(np.fft.ifft(1j*kky*U_hat))**2) * delta)) #stationary energy
+
+""" computing meta stable states - forward euler"""
+
+
 
 
 
