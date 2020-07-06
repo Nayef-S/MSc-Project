@@ -10,7 +10,7 @@ import matplotlib.animation as animation
 from scipy import linalg
 # import pyfftw
 #numerical parameters
-steps = int(5e6)
+steps = int(1e6)
 Nx = 64
 Ny = 128
 dt = 1e-3
@@ -62,7 +62,7 @@ if alp ==0 :
     m2[0] = dt
 
 C = (np.logical_and(k2>=(10**2), k2<=(12**2)).astype(int))
-C[:,0] = 0
+C[:,0] = 0 
 D = np.divide(C,k2)
 D[0,0] = 0
 C = (2* np.divide(C,np.mean(D)) * Nx *Ny )/(L**2)*delta
@@ -83,7 +83,7 @@ fig.set_size_inches(25, 12)
 
 for step in tqdm(range(0,steps)):
     
-    U_bar =  np.real_if_close(repmat(np.fft.ifft(U),Nx,1).T)
+    U_bar =  np.real_if_close(repmat(np.fft.ifft(U),Nx,1).T)# check
     
     upp =  np.real(np.fft.ifft((-kky**2)*(U)))
     
@@ -93,7 +93,7 @@ for step in tqdm(range(0,steps)):
     
     w = np.real(np.fft.ifft2(M1*np.fft.fft2(w) + M2*np.fft.fft2(wrest)))
     
-    eta = np.random.default_rng().normal(0, 1, size=(Ny, Nx)) + 1j*np.random.default_rng().normal(0, 1, size=(Ny, Nx)) * sigma/np.sqrt(2)
+    eta = (np.random.default_rng().normal(0, 1, size=(Ny, Nx)) + 1j*np.random.default_rng().normal(0, 1, size=(Ny, Nx))) * sigma/np.sqrt(2)
     
     w += np.sqrt(dt) * np.real(np.fft.ifft2(eta))
     

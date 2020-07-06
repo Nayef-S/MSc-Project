@@ -30,6 +30,7 @@ dy = L*delta/Ny
 yy = np.linspace(0,L*delta - dy,num=Ny)
 
 """ opening saved data """
+
 sigma = np.load('sigma.npy')
 U = np.load('U.npy')
 
@@ -69,21 +70,25 @@ def Gamma_lyap(sigma,U_hat,kx):
 
 if __name__ == "__main__":
 
-    C_xpyp = []
+    C_xpyp = np.zeros((Ny,Nx))
     
     """Computing stationary energy"""
     
     for kx in tqdm(range(0,Nx)):
         
         Ck = Gamma_lyap(sigma,U_hat,kx)
-    
-        diagC = [Ck[i][i] for i in range(min(len(Ck[0]),len(Ck)))] # diagonal of C
         
-        C_xpyp.append(diagC)
+        C_xpyp[:,kx] = np.fft.fft(Ck.diagonal()) # function of ky,ky',kx
     
-    E_st = 1 - (nu*0.5)*((np.mean(np.real(C_xpyp))*(L**2) *delta) + (L/alp)*(np.mean(np.real(np.fft.ifft(1j*kky*U_hat))**2) * delta)) #stationary energy
+    E_st = 1 - (nu*0.5)*((np.mean(np.real(np.fft.ifft2(C_xpyp)))*(L**2) *delta) + (L/alp)*(np.mean(np.real(np.fft.ifft(1j*kky*U_hat))**2) * delta)) #stationary energy
     
-    test = Gamma_lyap(sigma,U_hat,1)
+    w = np.load('w.npy')
+
+    E_stw = 1 - (nu*0.5)*((np.mean(np.real(w**2))*(L**2) *delta) + (L/alp)*(np.mean(np.real(np.fft.ifft(1j*kky*U_hat))**2) * delta)) #stationary energy
+
+    xsum = np.mean(w,axis = 1)
+    
+    test = Gamma_lyap(sigma,U_hat,5)
 
 
 
