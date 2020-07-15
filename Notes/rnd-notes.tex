@@ -1,6 +1,6 @@
 \documentclass[12pt]{amsart}
 \usepackage[centertags]{amsmath}
-\usepackage{amsfonts,amssymb}
+\usepackage{amsfonts,amssymb,amsmath}
 \usepackage{enumerate}
 \usepackage[sort&compress,numbers]{natbib}
 \usepackage{hyperref}
@@ -22,7 +22,32 @@
 \begin{document}
 \section{2D baratropic eqns on $\beta$-plane}
 
-\section{Energy balance check}
+We consider 2D stochastically forced barotropic $\beta$-plane
+turbulence,
+\begin{equation}
+  \label{eq:qg}
+  \partial_t \omega + \vec{v}\cdot \nabla \omega + \beta v =
+  -\lambda\omega - \nu (-\Delta)^p \omega + \sqrt{\gamma}\eta\,,
+\end{equation}
+ $\beta$-plane - a linear approximation of the coriolis parameter dependance on the latitude. (considering a linear topogrophy function $h(y) = \beta y$).Very useful approximation as it does not contribute non-linear terms to the system.
+ 
+\subsection{Forcing}
+ 
+The forcing was chosen to be spatially homogenous and isotropic which acts about a forcing wavenumber, $k_{*}$, and therefore only acts on a set on modes between $k_{a}$ and $k_{b}$ which are the limits of the spectrum. The spatial covariance, $\chi$, is defined as $\EE\left[\eta(\vec r_1, t_1)\eta(\vec
+  r_2,t_2)\right]=\delta(t_2-t_1) \chi(|\vec r_2- \vec r_1|)$. The $\delta(t_2-t_1)$ term indicates rapid temporal decorrelation of the forcing. As the forcing is homogenous in $x$ and $y$, the spatial covariance is dependent on $x - x'$ and $y - y'$.
+  
+\subsection{De-coupling in $k_{x}$}
+
+The vorticity can be expanded in zonal harmonics:
+
+\begin{equation*}
+  \omega(x,y,t) = \sum_{k=1}^{N_x} \hat\omega_k(y,t) e^{2\pi i k x/L}\,,
+\end{equation*}
+ 
+with $C_{k} = \EE[\hat\omega_k \hat\omega_k ^\dagger]$. Therefore, $\Gamma(U)$ can also be expanded in zonal harmonics. The forcing can also be expanded in zonal harmonics (chosen to be this way a priori).
+
+
+\section{Computing $C_{k}$}
 
 Computing $\Gamma(U)$:
 
@@ -30,23 +55,28 @@ Computing $\Gamma(U)$:
   \Gamma(U) = U\partial_x +(\partial_y^2 U-\beta)\partial_x \Delta^{-1} + \alpha + \nu(-\Delta)^p\,.
 \end{equation*}
 
-Taking FT in x and y and computing for each mode $k_{x}$
+Taking x to be in Fourier space and y in Real space, computing for each mode $k_{x}$
+\begin{align*}
+ \Gamma(\mathbf{U})_k  = \mathrm{i} k \underbrace{\begin{pmatrix} U_1 & &\\&\ddots\\& & U_{N_x}\end{pmatrix}}_{\equiv\mathbb{U}}  & + \mathrm{i} k \underbrace{\begin{pmatrix} (\mathrm{d}^2U/\mathrm{d}y^2)_1 - \beta & &\\&\ddots\\& & (\mathrm{d}^2U/\mathrm{d}y^2)_{N_x} - \beta\end{pmatrix}}_{\equiv\mathbb{D_y^2U}-\beta}\big(\mathbb{D}_y^2-k^2\mathbb{I}\big)^{-1} \\
+ &+ \alpha \mathbb{I} + \nu \big(-\mathbb{D}_y^2+k^2\mathbb{I}\big)^{p}
+\end{align*}
+
+where $\mathbb{D}_y^2$ is the matrix representation of the $\mathrm{d}^2/\mathrm{d}y^2$ operator.
+
+We can then compute $C_{k}$ by solving the lyapunov eqn for each zonal mode:
 \begin{equation*}
-  \Gamma(\mathbf{U})_{k_{x}} = \mathcal F^{-1}[ik_{x}\mathbf{U}] + \mathcal F^{-1}[ik_{x}(\beta\mathbb{1} + \mathbf{U}'')* (\mathbf{k}_{y}^{2}  +k_{x}^{2} \mathbb{1}) ^{-1}] + \alpha \mathbb{1} + \mathcal F^{-1}[\nu(\mathbf{k}_{y}^{2} + k_{x}^{2}\mathbb{1})^p]\,,
+  \Gamma_k(U) C_k + C_k \Gamma_k(U)^\dagger = 2 \sigma_k \sigma_k^\dagger\
 \end{equation*}
 
-where $\mathbf{U}$ and $\mathbf{k}_{y}^{2}$ are diagonal matrices of size $ N_{y} \times N_{y}$ with $U(y,t)$ and $k_{y}^2$ on the diagonals respectively. Then the full $\Gamma$:
-
+where $\sigma_k$ is a vector at the $k^{th}$ mode of the $\sigma$ matrix. \par
+To compute the stationary energy, the full autocorrelation function $C(x,y,x'y')_{(x,y) = (x'y')}$ is required:
 \begin{equation*}
-  \Gamma(U) = \sum_{k_{x}} \Gamma(\mathbf{U})_{k_{x}} .
+E = 1 - \frac\nu2 \left(\int\EE[C]\,dx\,dy + \frac{L}{\alpha} \int\EE[(\partial_y U)^2]\,dy\right)
 \end{equation*}
-
-We can then compute $C_{U}$ by solving the lyapunov eqn:
+The $\int C \,dx$ term is equal to $C_0$ (k = 0 mode). Therefore the eqaution becomes:
 \begin{equation*}
-  \Gamma(U) C_{U} + C_{U} \Gamma(U)^\dagger = 2
-  \sigma \sigma^\dagger\,
+E = 1 - \frac\nu2 \left(\int\EE[C_0]\,dy + \frac{L}{\alpha} \int\EE[(\partial_y U)^2]\,dy\right).
 \end{equation*}
-
 
 
 
