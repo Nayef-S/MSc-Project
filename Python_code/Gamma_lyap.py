@@ -6,10 +6,8 @@
 import math
 import numpy as np
 from tqdm import tqdm
-from numpy.matlib import repmat
 from scipy import linalg
-
-
+from scipy import signal
 
 Nx = 64
 Ny = 128
@@ -22,73 +20,115 @@ beta = 4.5
 p=2
 
 
+dkx = 2*math.pi/L
+kkx1 = np.arange(0,Nx/2+1)
+kkx2 = np.arange(-Nx/2+1,0)
+kkx = np.concatenate((kkx1, kkx2), axis=None)*dkx
 dky = 2*math.pi/L/delta
 kky1= np.arange(0,Ny/2+1)
 kky2 = np.arange(-Ny/2+1,0)
 kky = np.concatenate((kky1, kky2), axis=None)*dky
+kx,ky = np.meshgrid(kkx,kky,indexing = 'xy')
+k2 = kx**2 + ky**2
+
 dy = L*delta/Ny
-yy = np.linspace(0,L*delta - dy,num=Ny)
 
 """ opening saved data """
 
 sigma = np.load('sigma.npy')
-U = np.load('U.npy')
+U = np.load('U.npy').reshape(128,1)
+Up = np.load('Upp.npy')
+w = np.load('w.npy')
 
 
-""" Computing Gamma & C """
+""" Computing Gamma & Ck """
 
-Ck = np.zeros((128,128),dtype=np.complex)
+C_k = np.zeros((128,128),dtype=np.complex)
 
-U_hat = np.fft.fft(U)
+# D^2 operator in y
+
+D2y = np.diag(np.linspace(1, 1, Ny-1), +1) - 2*np.diag(np.linspace(1, 1, Ny)) + np.diag(np.linspace(1, 1, Ny-1), -1)
+
+#periodic BCs
+
+D2y[0, Ny-1] = 1
+D2y[-1, 0] = 1
+
+D2y = D2y/(dy**2)
 
 
-def Gamma_lyap(sigma,U_hat,kx):
+Upp = D2y @ U # operator test
+
+I = np.eye(Ny)
+
+k = 1
+
+def Gamma_U(U,k,D2y,I):
     
-    sigma_real = np.real(np.fft.ifft(sigma[:,kx]))
+    lap = D2y - k**2 * I
+    invlap = np.linalg.inv(lap)
+
+    Gamma_k = 1j*k*np.diag(U) + 1j*k*(np.diag(D2y @ U)- beta*I) @ invlap + alp*I + nu*(-D2y + k**2 * I)**p
+
+    return Gamma_k
+
+
+for k in range(1,Nx):
+
+    sigma_real = np.real(np.fft.ifft(sigma[:,k]))
     
-    Chi = 2*sigma_real.reshape(Ny,1) @ sigma_real.reshape(Ny,1).conj().T
-     
-    A = np.diag(1j * kx * U)
+    Chi_k = 2*sigma_real.reshape(Ny,1) @ sigma_real.reshape(Ny,1).conj().T
     
-    invlap = 1/((kky**2) + (kx**2))
+    Gamma_k  = Gamma_U(U,k,D2y,I)
     
-    invlap[invlap == np.inf ] = 0
-    
-    B = 1j*kx* np.fft.ifft2(np.diag(-kky**2 * U_hat - beta))
-    
-    C = np.fft.ifft2(np.diag(invlap))
-    
-    D = np.identity(Ny)*alp
-    
-    E = np.fft.ifft2(nu * (np.diag(kky**2) + np.identity(Ny)*(kx**2))**p)
-    
-    Gamma_k = A + B*C + D + E 
-    
-    Ck = linalg.solve_continuous_lyapunov(Gamma_k, Chi)
-    
-    return Ck
+    C_k = linalg.solve_continuous_lyapunov(Gamma_k, Chi_k)
+
+
+test = np.real(C_k)
+test2 = w**2
+
+
+
+
+
+
+
+# def conv2(x, y, mode='full'):
+#     return np.rot90(signal.convolve2d(np.rot90(x, 2), np.rot90(y, 2), mode=mode), 2)
 
 if __name__ == "__main__":
 
-    C_xpyp = np.zeros((Ny,Nx))
+    # C_xpyp = np.zeros((Ny,Nx))
     
-    """Computing stationary energy"""
+    # """Computing stationary energy"""
     
-    for kx in tqdm(range(0,Nx)):
+    # for kx in tqdm(range(-int(Nx/2),int(Nx/2))):
         
-        Ck = Gamma_lyap(sigma,U_hat,kx)
+    #     Ck = Gamma_lyap(sigma,U_hat,kx)
         
-        C_xpyp[:,kx] = np.fft.fft(Ck.diagonal()) # function of ky,ky',kx
+    #     C_xpyp[:,kx] = np.fft.fft(Ck.diagonal()) # function of ky,ky'
     
-    E_st = 1 - (nu*0.5)*((np.mean(np.real(np.fft.ifft2(C_xpyp)))*(L**2) *delta) + (L/alp)*(np.mean(np.real(np.fft.ifft(1j*kky*U_hat))**2) * delta)) #stationary energy
+    # E_st = 1 - (nu*0.5)*((np.mean(np.fft.ifft2(C_xpyp))*(L**2) *delta) + (L/alp)*(np.mean(np.real(np.fft.ifft(1j*kky*U_hat))**2) * delta)) #stationary energy
+        
     
-    w = np.load('w.npy')
-
-    E_stw = 1 - (nu*0.5)*((np.mean(np.real(w**2))*(L**2) *delta) + (L/alp)*(np.mean(np.real(np.fft.ifft(1j*kky*U_hat))**2) * delta)) #stationary energy
-
-    xsum = np.mean(w,axis = 1)
+    # test = Gamma_lyap(sigma,U_hat,5)
     
-    test = Gamma_lyap(sigma,U_hat,5)
+    # Ck, Chi, E = Gamma_lyap(sigma,U_hat,1)
+    
+    # chik = np.zeros((Ny,Ny))
+    
+    # k = 1
+            
+    # for q in range(0,Nx):
+        
+    #     k_q = abs(1-q)
+        
+    #     chik = sigma[:,q].reshape(Ny,1) @ sigma[:,k_q].reshape(Ny,1).conj().T
+        
+    #     chik += chik
+        
+    # sigma0 = sigma[:,0]
 
-
-
+    # testchi = conv2(sigma,sigma0[:,None].conj().T)
+    
+    A = 1
