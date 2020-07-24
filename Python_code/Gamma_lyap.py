@@ -8,6 +8,7 @@ import numpy as np
 from tqdm import tqdm
 from scipy import linalg
 from scipy import signal
+import matplotlib.pylab as plt
 
 Nx = 64
 Ny = 128
@@ -33,11 +34,19 @@ k2 = kx**2 + ky**2
 
 dy = L*delta/Ny
 
+
+C = (np.logical_and(k2>=(10**2), k2<=(12**2)).astype(int))
+C[:,0] = 0 
+D = np.divide(C,k2)
+D[0,0] = 0
+C = (2* np.divide(C,np.mean(D)) * Nx *Ny )/(L**2)*delta
+sigma = np.sqrt(C)
+
 """ opening saved data """
 
 sigma = np.load('sigma.npy')
 U = np.load('U.npy').reshape(128,1)
-Up = np.load('Upp.npy')
+UppQL = np.load('Upp.npy')
 w = np.load('w.npy')
 
 
@@ -68,28 +77,9 @@ def Gamma_U(U,k,D2y,I):
     lap = D2y - k**2 * I
     invlap = np.linalg.inv(lap)
 
-    Gamma_k = 1j*k*np.diag(U) + 1j*k*(np.diag(D2y @ U)- beta*I) @ invlap + alp*I + nu*(-D2y + k**2 * I)**p
+    Gamma_k = 1j*k*U*I + 1j*k*((D2y @ U)*I - beta*I) @ invlap + alp*I + nu*(-D2y + k**2 * I)**p
 
     return Gamma_k
-
-
-for k in range(1,Nx):
-
-    sigma_real = np.real(np.fft.ifft(sigma[:,k]))
-    
-    Chi_k = 2*sigma_real.reshape(Ny,1) @ sigma_real.reshape(Ny,1).conj().T
-    
-    Gamma_k  = Gamma_U(U,k,D2y,I)
-    
-    C_k = linalg.solve_continuous_lyapunov(Gamma_k, Chi_k)
-
-
-test = np.real(C_k)
-test2 = w**2
-
-
-
-
 
 
 
@@ -97,6 +87,23 @@ test2 = w**2
 #     return np.rot90(signal.convolve2d(np.rot90(x, 2), np.rot90(y, 2), mode=mode), 2)
 
 if __name__ == "__main__":
+    
+    test = Gamma_U(U,1,D2y,I)
+    
+    
+    # for k in range(-int(Nx/2),int(Nx/2)):
+
+    #     sigma_real = np.real(np.fft.ifft(sigma[:,k]))
+        
+    #     Chi_k = 2*sigma_real.reshape(Ny,1) @ sigma_real.reshape(Ny,1).conj().T
+        
+    #     Gamma_k  = Gamma_U(U,k,D2y,I)
+        
+    #     C_k = linalg.solve_continuous_lyapunov(Gamma_k, Chi_k)
+    
+    
+    # test = np.real(C_k)
+    # test2 = w**2
 
     # C_xpyp = np.zeros((Ny,Nx))
     
@@ -131,4 +138,18 @@ if __name__ == "__main__":
 
     # testchi = conv2(sigma,sigma0[:,None].conj().T)
     
-    A = 1
+    # Cx = np.zeros((Ny,Nx))
+    
+    kkx2 = np.concatenate((kkx2, kkx1), axis=None)*dkx
+    kky2 = np.concatenate((kky2, kky1), axis=None)*dky
+    kx2,ky2 = np.meshgrid(kkx2,kky2,indexing = 'xy')
+    
+    Cx = np.fft.fftshift(C)
+    
+    plt.contourf(kx2,ky2,Cx)
+    
+    
+    
+    
+    
+    
