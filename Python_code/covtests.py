@@ -33,30 +33,31 @@ sigma = np.load('sigma.npy')
 #%%
 """ 1D  ( Ny = 1) """
 
+realizations = 50000
+
 sig = sigma[9,:]
 
 sig2 = np.fft.ifft(sig)
 
-coveta = np.zeros((Nx,Nx,10000),dtype=np.complex)
+coveta = np.zeros((Nx,realizations),dtype=np.complex)
 
-eta_full = np.zeros((Nx,10000),dtype=np.complex)
+eta_full = np.zeros((Nx,realizations),dtype=np.complex)
 
 
-for i in range(0,10000):
+for i in range(0,realizations):
 
     eta_hat = np.fft.fft(np.random.randn(Nx))* sig * np.sqrt(1/Nx)   #np.sqrt(1/Nx) when fourier transform
      
     eta_full[:,i] = eta_hat
     
-    coveta[:,:,i] = eta_hat.reshape(Nx,1) @  eta_hat.reshape(Nx,1).conj().T
+    coveta[:,i] = eta_hat *  eta_hat.conj().T
 
 
 voc = np.cov(eta_full)
 
-numcov = np.diag(np.mean(coveta , axis = 2))
+numcov = np.mean(coveta , axis = 1)
 
-chihat = sig.reshape(Nx,1) * sig.reshape(Nx,1).conj().T
-
+chihat = sig * sig.conj().T
 
 #%%
 
