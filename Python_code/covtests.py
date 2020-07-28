@@ -65,9 +65,9 @@ chihat = sig * sig.conj().T
 
 kx = 1
 
-sig2 = sigma[:,kx].reshape(Ny,1)
+sig2 = sigma[:,kx]
 
-chihat2 = sig2 @ sig2.conj().T
+chihat2 = np.diag(sig2 * sig2.conj().T)
  
 
 coveta2 = np.zeros((Ny,Ny,10000),dtype=np.complex)
@@ -75,9 +75,9 @@ coveta2 = np.zeros((Ny,Ny,10000),dtype=np.complex)
 
 for i in range(0,10000):
 
-    eta_hat2 = np.fft.fft2(np.random.randn(Ny, Nx)) * sig2 * 1/Nx
+    eta_hat2 = np.fft.fft2(np.random.randn(Ny, Nx)) * sigma * np.sqrt(1/(Nx*Ny))
     
-    coveta2[:,:,i] = eta_hat2[:,kx].reshape(Ny,1) @ eta_hat2[:,kx].reshape(Ny,1).conj().T
+    coveta2[:,:,i] = np.diag(eta_hat2[:,kx] * eta_hat2[:,kx].conj().T)
 
 numcov2 = np.mean(coveta2 , axis = 2) 
 
