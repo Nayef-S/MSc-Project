@@ -14,24 +14,19 @@ from tqdm import tqdm
 from numpy.matlib import repmat
 from scipy import linalg
 import matplotlib.pylab as plt
+from Gamma_lyap import Gamma_U,Gamma_U_p
 
 
 Ny = 128
 Nx = 64
 
 
-w = np.load('w.npy')
-
-wmean = np.mean(w)
-
-w2mean = np.mean(w**2,axis = 0)
-
 sigma = np.load('sigma.npy')
 
 
                          
 #%%
-""" 1D  ( Ny = 1) """
+""" Covariance 1D  ( Ny = 1) """
 
 realizations = 50000
 
@@ -61,7 +56,7 @@ chihat = sig * sig.conj().T
 
 #%%
 
-""" 2D for one zonal wavenumber """
+""" Covariance 2D for one zonal wavenumber """
 
 kx = 1
 
@@ -75,7 +70,7 @@ coveta2 = np.zeros((Ny,Ny,10000),dtype=np.complex)
 
 for i in range(0,10000):
 
-    eta_hat2 = np.fft.fft2(np.random.randn(Ny, Nx)) * sigma * np.sqrt(1/(Nx*Ny))
+    eta_hat2 = (np.random.default_rng().normal(0, 1, size=(Ny, Nx)) + 1j*np.random.default_rng().normal(0, 1, size=(Ny, Nx))) * sigma/np.sqrt(2)
     
     coveta2[:,:,i] = np.diag(eta_hat2[:,kx] * eta_hat2[:,kx].conj().T)
 
@@ -106,9 +101,82 @@ k1 = K[1,1,:,:]
 #Xtest = 0.5 * np.fft.ifft(sig) @ np.fft.ifft(sig).T  / np.fft.ifft(sig).shape[1]
 
 
+#%%
+L = 2*math.pi
+alp = 0.01
+nu = 1e-6
+beta = 4.5
+dt = 1e-2
+T = 10
+
+dy = L/Ny
+yy = np.linspace(0,L-dy,num=Ny)
+
+D2y = np.diag(np.linspace(1, 1, Ny-1), +1) - 2*np.diag(np.linspace(1, 1, Ny)) + np.diag(np.linspace(1, 1, Ny-1), -1)
+
+#periodic BCs
+
+D2y[0, Ny-1] = 1
+D2y[-1, 0] = 1
+
+D2y = D2y/(dy**2)
+I = np.eye(Ny)
+
+solnw = np.zeros((Ny,int(T/dt)+2))
+
+#solnw[:,0] = 
+
+w = np.zeros((Ny,Nx))
+
+U = 0.2*np.sin(5*yy)
+
+k = 1
+ 
+Gamma_k  = Gamma_U_p(U,k,D2y,I,1)
+
+eigen = min(np.real(linalg.eig(Gamma_k)[0]))
+
+i = 0
+
+t_tot = 0
+
+while t_tot < T:
+    
+    eta_k = (np.random.default_rng().normal(0, 1, size=(Ny, Nx)) + 1j*np.random.default_rng().normal(0, 1, size=(Ny, Nx))) * sigma/np.sqrt(2)
+    
+    solnw[:,i+1] = solnw[:,i] + dt*(-Gamma_k @ solnw[:,i]) + np.fft.ifft(eta_k[:,k])
+    
+    i += 1
+    
+    t_tot += dt
 
 
-#  # FT w
+omeg = np.zeros((Ny,Ny,solnw.shape[1]))
+
+for j in range(int(solnw.shape[1]/2),solnw.shape[1]):
+
+    omeg[:,:,j] = solnw[:,j].reshape(Ny,1) @ solnw[:,j].reshape(Ny,1).T  #np.fft.ifft2(np.diag(np.fft.fft(solnw[:,j]) * np.fft.fft(solnw[:,j]).conj().T))
+
+TestChi = np.mean(omeg,axis  = 2)
+
+# sigma_real = np.real(np.fft.ifft(sigma[:,k])).reshape(Ny,1)
+
+# Chi_k = 2*sigma_real @ sigma_real.conj().T
+
+sigma_k = sigma[:,k]
+
+Chi_k = np.fft.ifft2(np.diag(2*sigma_k * sigma_k.conj().T))
+
+C_k = linalg.solve_continuous_lyapunov(Gamma_k, Chi_k)
+
+
+wt = np.fft.fft2(np.load('w.npy'))
+
+test = np.fft.ifft(wt[:,k]).reshape(Ny,1) @ np.fft.ifft(wt[:,k]).reshape(Ny,1).conj().T
+
+
+#%%
+# # FT w
 
 # ftw = np.fft.fft2(w)
 

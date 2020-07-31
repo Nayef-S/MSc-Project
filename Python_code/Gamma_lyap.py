@@ -72,7 +72,7 @@ I = np.eye(Ny)
 
 k = 1
 
-def Gamma_U(U,k,D2y,I):
+def Gamma_U(U,k,D2y,I,p):
     
     lap = D2y - k**2 * I
     invlap = np.linalg.inv(lap)
@@ -83,12 +83,32 @@ def Gamma_U(U,k,D2y,I):
 
 
 
+def Gamma_U_p(U,k,D2y,I,p):
+    
+    Ny = 128
+    dky = 2*math.pi/(2*math.pi)
+    kky1= np.arange(0,Ny/2+1)
+    kky2 = np.arange(-Ny/2+1,0)
+    kky = np.concatenate((kky1, kky2), axis=None)*dky
+    
+    lap = D2y - k**2 * I
+    invlap = np.linalg.inv(lap)
+
+    Gamma_k = 1j*k*U*I + 1j*k*((D2y @ U)*I - beta*I) @ invlap + alp*I + np.fft.ifft(nu*(-kky**(2*p) * I + -k**(2*p) *I) ,axis = 0)
+
+    return Gamma_k
+
+
+
 # def conv2(x, y, mode='full'):
 #     return np.rot90(signal.convolve2d(np.rot90(x, 2), np.rot90(y, 2), mode=mode), 2)
 
 if __name__ == "__main__":
     
-    test = Gamma_U(U,1,D2y,I)
+    test = Gamma_U(U,1,D2y,I,1)
+    
+    test2 = Gamma_U_p(U,1,D2y,I,1)
+    
     
     
     # for k in range(-int(Nx/2),int(Nx/2)):
