@@ -94,7 +94,7 @@ def Gamma_U_p(U,k,D2y,I,p):
     lap = D2y - k**2 * I
     invlap = np.linalg.inv(lap)
 
-    Gamma_k = 1j*k*U*I + 1j*k*((D2y @ U)*I - beta*I) @ invlap + alp*I + np.fft.ifft(nu*(-kky**(2*p) * I + -k**(2*p) *I) ,axis = 0)
+    Gamma_k = 1j*k*U*I + 1j*k*((D2y @ U)*I - beta*I) @ invlap + alp*I + np.fft.ifft(nu*((-kky**2)**p * I + (-k**2)**p *I) ,axis = 0)
 
     return Gamma_k
 
