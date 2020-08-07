@@ -111,7 +111,7 @@ alp = 0.01
 nu = 1e-6
 beta = 4.5
 dt = 1e-3
-T = 20
+T = 2000
 
 dy = L/Ny
 yy = np.linspace(0,L-dy,num=Ny)
@@ -127,14 +127,14 @@ D2y = D2y/(dy**2)
 
 I = np.eye(Ny)
 
-solnw = np.zeros((Ny,int(T/dt)+2),dtype=np.complex)
+solnw = np.zeros((Ny,int(T/dt)//1000),dtype=np.complex)
 
-
+k = 1
 w = np.zeros((Ny,Nx))
+wk = w[:,k]
 
 U = 0.2*np.sin(4*yy)
 
-k = 1
  
 Gamma_k  = Gamma_U_p(U,k,D2y,I,1) 
 
@@ -144,39 +144,46 @@ eigen = linalg.eig(Gamma_k)
 
 i = 0
 
+count = 0
+
 t_tot = 0
 
 while t_tot < T:
     
     eta_k = (np.random.default_rng().normal(0, 1, size=(Ny, Nx)) + 1j*np.random.default_rng().normal(0, 1, size=(Ny, Nx))) * sigma/np.sqrt(2)
     
-    solnw[:,i+1] = solnw[:,i] + dt*(-Gamma_k @ solnw[:,i]) + np.real(np.fft.ifft(eta_k[:,k]))
+    wk = wk + dt*(-Gamma_k @ wk) + np.real(np.fft.ifft(eta_k[:,k]))
     
-    i += 1
+    if (count % 1000) == 0 :
+    
+        solnw[:,i] = wk
+        
+        i += 1
     
     t_tot += dt
     
-num_points = 2000
+    count += 1
+    
 to = solnw.shape[1]
-fro = solnw.shape[1] - num_points
+fro = solnw.shape[1] *  0 
 stepp = 5
 
-omeg = np.zeros((Ny,Ny,(to-fro)//stepp),dtype=np.complex)
-omeg2 = np.zeros((Ny,Ny,(to-fro)//stepp),dtype=np.complex)
+omeg = np.zeros((Ny,Ny,solnw.shape[1]+ 1),dtype=np.complex)
+omeg2 = np.zeros((Ny,Ny,solnw.shape[1] + 1),dtype=np.complex)
 
 ii = 0
 
-for j in range(fro,to,stepp):
+for j in tqdm(range(0,solnw.shape[1])):
 
     omeg[:,:,ii] = solnw[:,j].reshape(Ny,1) @ solnw[:,j].reshape(Ny,1).conj().T #np.fft.ifft2(np.fft.fft(solnw[:,j]).reshape(Ny,1) @ np.fft.fft(solnw[:,j]).reshape(Ny,1).conj().T)#solnw[:,j].reshape(Ny,1) @ solnw[:,j].reshape(Ny,1).conj().T  #np.fft.ifft2(np.fft.fft(solnw[:,j]).reshape(Ny,1) @ np.fft.fft(solnw[:,j]).reshape(Ny,1).conj().T)
     
-    omeg2[:,:,ii] = np.fft.ifft2(np.diag(np.fft.fft(solnw[:,j]) * np.fft.fft(solnw[:,j]).conj()))
+    #omeg2[:,:,ii] = np.fft.ifft2(np.fft.fft(solnw[:,j]).reshape(Ny,1) @ np.fft.fft(solnw[:,j]).reshape(Ny,1).conj().T)
     
     ii+=1
-    
 
-TestChi = np.mean(omeg,axis  = 2)
-TestChi2 = np.mean(omeg2,axis  = 2) 
+
+TestC_k = np.mean(omeg,axis  = 2)
+TestC_k2 = np.mean(omeg2,axis  = 2) 
 
 covfunc = np.cov(solnw[:,fro:-1],rowvar=1 )
 
@@ -184,18 +191,17 @@ covfunc = np.cov(solnw[:,fro:-1],rowvar=1 )
 
 # Chi_k = 2*sigma_real @ sigma_real.conj().T
 
-Chi_k = 2 * np.fft.ifft2(np.diag(sigma[:,k] * sigma[:,k].conj().T))
+#Chi_k = 2 * np.fft.ifft2(np.diag(sigma[:,k] * sigma[:,k].conj().T))
 
-# sigma_k = sigma[:,k]
+sigma_k = sigma[:,k]
 
-# teosig = linalg.toeplitz(np.fft.ifft(sigma_k))
+teosig = linalg.toeplitz(np.fft.ifft(sigma_k))
 
-# Chi_k = 2 * np.fft.ifft2(np.fft.fft2(teosig) * np.fft.fft2(teosig).conj().T) 
+Chi_k = 2 * np.fft.ifft2(np.fft.fft2(teosig) * np.fft.fft2(teosig).conj().T) 
 
-# Chi_k1 = 2 * teosig @ teosig * Ny
+Chi_k1 = 2 * teosig @ teosig * Ny
 
 C_k = linalg.solve_continuous_lyapunov(Gamma_k, Chi_k)
-
 
 
 wt = np.load('w.npy')
