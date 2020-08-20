@@ -68,14 +68,16 @@ D2y = D2y/(dy**2)
 
 Upp = D2y @ U # operator test
 
+Upp2 = np.real(np.fft.ifft((-kky**2) * np.fft.fft(U)[:,0]))
+
 I = np.eye(Ny)
 
 k = 1
 
 def Gamma_U(U,k,D2y,I,p):
     
-    lap = D2y - k**2 * I
-    invlap = np.linalg.inv(lap)
+    lap = np.fft.ifft((1j*k) / ((kky**2) + (k**2)))
+    invlap = linalg.toeplitz(lap,lap)
 
     Gamma_k = 1j*k*U*I + 1j*k*((D2y @ U)*I - beta*I) @ invlap + alp*I + nu*(-D2y + k**2 * I)**p
 
@@ -83,18 +85,12 @@ def Gamma_U(U,k,D2y,I,p):
 
 
 
-def Gamma_U_p(U,k,D2y,I,p):
+def Gamma_U_p(U,Upp,k,p,kky):
     
-    Ny = 128
-    dky = 2*math.pi/(2*math.pi)
-    kky1= np.arange(0,Ny/2+1)
-    kky2 = np.arange(-Ny/2+1,0)
-    kky = np.concatenate((kky1, kky2), axis=None)*dky
-    
-    lap = D2y - k**2 * I
-    invlap = np.linalg.inv(lap)
+    invlap = linalg.toeplitz(np.fft.ifft(1/((kky**2) + (k**2))))
+    diff = linalg.toeplitz(np.fft.ifft(((kky**2) + (k**2))**p))
 
-    Gamma_k = 1j*k*U*I + 1j*k*((D2y @ U)*I - beta*I) @ invlap + alp*I + np.fft.ifft(nu*((-kky**2)**p * I + (-k**2)**p *I) ,axis = 0)
+    Gamma_k = 1j*k*U*I + (1j*k) * (beta*I - Upp*I) @ invlap + alp*I + nu*diff # not sure about beta - Upp
 
     return Gamma_k
 
@@ -105,9 +101,17 @@ def Gamma_U_p(U,k,D2y,I,p):
 
 if __name__ == "__main__":
     
-    test = Gamma_U(U,1,D2y,I,1)
+    k = 5
     
-    test2 = Gamma_U_p(U,1,D2y,I,1)
+    p = 2
+    
+    yy = np.linspace(0,L*delta - dy,num=Ny)
+    
+    U = 0.2*np.sin(3*yy)
+    
+    Upp = np.real(np.fft.ifft((-kky**2) * np.fft.fft(U)))#
+        
+    test = Gamma_U_p(U,Upp,k,p,kky)
     
     
     
@@ -160,13 +164,13 @@ if __name__ == "__main__":
     
     # Cx = np.zeros((Ny,Nx))
     
-    kkx2 = np.concatenate((kkx2, kkx1), axis=None)*dkx
-    kky2 = np.concatenate((kky2, kky1), axis=None)*dky
-    kx2,ky2 = np.meshgrid(kkx2,kky2,indexing = 'xy')
+    # kkx2 = np.concatenate((kkx2, kkx1), axis=None)*dkx
+    # kky2 = np.concatenate((kky2, kky1), axis=None)*dky
+    # kx2,ky2 = np.meshgrid(kkx2,kky2,indexing = 'xy')
     
-    Cx = np.fft.fftshift(C)
+    # Cx = np.fft.fftshift(C)
     
-    plt.contourf(kx2,ky2,Cx)
+    # plt.contourf(kx2,ky2,Cx)
     
     
     

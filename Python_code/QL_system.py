@@ -23,8 +23,9 @@ L = 2*math.pi
 alp = 0.01
 nu = 1e-6
 beta = 4.5
-p=2
+p = 2
 delta = 1.0
+sig = 200
 
 dx = L/Nx
 xx = np.linspace(0, L-dx, num=Nx)
@@ -46,7 +47,7 @@ kp = k2**p
 modk = np.sqrt(k2)
 kmax = np.amax(modk)
 
-U = 0.2*np.fft.fft(np.sin(2*yy/delta)) 
+U = 0.02*np.fft.fft(np.sin(2*yy/delta)) 
 w = np.zeros((Ny,Nx))
 
 M1 = np.exp((-nu*kp - alp)*dt)
@@ -62,11 +63,11 @@ if alp ==0 :
     m2[0] = dt
 
 C = (np.logical_and(k2>=(10**2), k2<=(12**2)).astype(int))
-C[:,0] = 0 
-D = np.divide(C,k2)
+C[:,0]  = 0
+D = C / k2
 D[0,0] = 0
-C = (2* np.divide(C,np.mean(D)) * Nx *Ny )/(L**2)*delta
-sigma = np.sqrt(C)
+C = C / (np.sum(D) * dkx*dky) / (2*(math.pi**2) * delta * L**2) *Nx*Ny
+sigma = sig * C
 
 
 v =  -1j*(kx/k2)*np.fft.fft2(w) 
@@ -83,7 +84,7 @@ fig.set_size_inches(25, 12)
 
 for step in tqdm(range(0,steps)):
     
-    U_bar =  np.real_if_close(repmat(np.fft.ifft(U),Nx,1).T)# check
+    U_bar =  np.real_if_close(repmat(np.fft.ifft(U),Nx,1).T) # check
     
     upp =  np.real(np.fft.ifft((-kky**2)*(U)))
     
@@ -181,12 +182,12 @@ plt.savefig("soln.png", dpi=150)
 
 """ saving data """
 
-np.save('Hovmoller.npy', hovmoller) 
-np.save('Umodes.npy', Umodes) 
-np.save('U.npy', np.real(np.fft.ifft(U))) 
-np.save('Upp.npy', np.real(np.fft.ifft(-kky**2 * U)))
-np.save('w.npy', w) 
-np.save('sigma.npy', sigma) 
+# np.save('Hovmoller.npy', hovmoller) 
+# np.save('Umodes.npy', Umodes) 
+# np.save('U.npy', np.real(np.fft.ifft(U))) 
+# np.save('Upp.npy', np.real(np.fft.ifft(-kky**2 * U)))
+# np.save('w.npy', w) 
+# np.save('sigma.npy', sigma) 
 
 # ani = animation.ArtistAnimation(fig, ims, interval=10, blit=True)
 
