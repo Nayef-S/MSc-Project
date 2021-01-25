@@ -1,2 +1,2 @@
-# MSc-Project
-Data, Literature and Code for the Msc project in Python and MATLAB
+# PhD project
+Data, Literature and Code for the PhD in Python and MATLAB
